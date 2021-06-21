@@ -4,13 +4,20 @@ const User = require('../models/user');
 const { generateJWT } = require('../helpers/jwt');
 
 const getUsers = async (req, res) => {
-
-    const users = await User.find({}, 'name email role google');
+    const pageSize = Number(req.query.pageSize) || 0;
+    const currentPage = Number(req.query.page) || 1;
+    const [users, totalCount] = await Promise.all([
+        User
+            .find({}, 'name email role google')
+            .skip(pageSize * (currentPage - 1))
+            .limit(5),
+        User.countDocuments()
+    ]);
 
     res.status(202).json({
         ok: true,
         users,
-        uid: req.uid
+        totalCount
     });
 }
 
@@ -44,7 +51,7 @@ const createUser = async (req, res = response) => {
     } catch (err) {
         res.status(500).json({
             ok: false,
-            msg: 'Error'
+            msg: err
         });
     }
 }
@@ -88,7 +95,7 @@ const updateUser = async (req, res = response) => {
     } catch (error) {
         res.status(500).json({
             ok: false,
-            msg: 'Error'
+            msg: error
         })
     }
 };

@@ -14,6 +14,4 @@ const validateFields = (req, res = response, next) => {
     next();
 };
 
-module.exports = {
-    validateFields
-}
+module.exports = { validateFields }
